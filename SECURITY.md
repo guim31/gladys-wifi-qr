@@ -30,6 +30,14 @@ Gladys before reporting a problem.
 
 In scope: the code of this repository and the Docker image it publishes.
 
+What the integration keeps: the network names and passwords live in the
+Gladys configuration (passwords as secret fields); `/data` only holds a random
+key that signs the image keys of the widget, so they change with the password
+without revealing it. The integration makes no network connection besides
+Gladys, and never writes a password in its logs. The widget shows the password
+(and the QR code contains it) to anyone who sees the dashboard: that is its
+purpose.
+
 Out of scope: Gladys Assistant itself (see its
 [security policy](https://github.com/GladysAssistant/Gladys/security/policy)),
-and the third-party services and devices the integration talks to.
+and the routers and phones the QR codes are for.

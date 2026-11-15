@@ -1,61 +1,101 @@
-# Demo Devices Template
+# Wi-Fi QR Code
 
-This is the user documentation of the integration. Gladys re-hosts this file
-and shows a permanent **Documentation** link to it in the Configuration screen
-(in the user's language, with English as the fallback) — it is when
-configuring that the user needs it most. Keep the short onboarding hints in
-the `section` blocks of the manifest `config_schema`; put the long
-step-by-step (screenshots, troubleshooting…) here.
+Show the QR code of your guest Wi-Fi on a Gladys dashboard: a guest points the
+phone camera at it and joins the network, without typing a password. Up to
+three networks, a widget, and a scene action to change the password shown.
 
-## What you get
+Everything happens inside your Gladys: no account, no internet access, no data
+sent anywhere.
 
-Six demo devices show up after installation: a weather station (real data
-from Open-Meteo), a switch, a dimmable light, a smart plug with power
-metering, a motion sensor and a camera.
+> The QR codes are checked by reading them back with a QR decoder, in the
+> automated tests. They have not been scanned with every phone yet: feedback
+> welcome on the forum or in a GitHub issue.
+
+## What you need
+
+- Gladys Assistant 5.2.0 or later (widget images).
+- The name (SSID), security and password of the network to share.
 
 ## Configuration
 
-1. Open the **Configuration** tab of the integration.
-2. Set the **latitude** and **longitude** the demo weather station should
-   observe (they default to Paris), and pick your temperature unit.
-   The **refresh interval** sets how often the weather station and the
-   plug's power are read: every 5 minutes by default, every minute at most.
-3. Save: the devices appear in the **Discovery** tab, ready to be added.
+On the integration page, fill in up to three networks. Leave the name of a
+network empty to skip it.
 
-The **Prefer the local connection** toggle drives the demo plug: it reports
-the channel it actually uses as a badge (local or cloud), with an orange dot
-when it runs degraded (local refused, cloud fallback).
+### Network name, security, password
 
-## Actions
+- **Network name (SSID)**: exactly as the phones list it. Case, spaces and
+  accents count. 32 bytes at most.
+- **Security**: **WPA / WPA2** covers almost every router, WPA2/WPA3 mixed mode
+  included. Choose **WPA3 only** only if the router accepts nothing else: some
+  older phones do not read it. **None** is for an open network.
+- **Password**: 8 to 63 characters for WPA. It is stored as a secret by Gladys
+  and never written in the logs.
+- **Hidden network**: check it if the router does not broadcast the name.
 
-- **Test the weather provider** — performs a live request to Open-Meteo and
-  shows the current temperature and humidity under the button.
-- **Identify a device** — pick one of your devices in the list and it will
-  signal itself (the demo light "blinks" in the logs).
+The special characters `\ ; , : "` are escaped in the QR code as the format
+requires, so a password like `p@ss;word:2026` works.
 
-## Scenes
+### Integration status
 
-The integration adds its own cards to the scene editor (Gladys 5.1 or
-later), under the **Integrations** category:
+The integration page shows an error when no network is set up, or when a
+network cannot give a working QR code (password too short, name too long), and
+names the network to fix.
 
-- **Motion detected** (trigger) — starts the scene when a demo motion sensor
-  sees something move. Optionally pick the sensor and what moved (person,
-  animal); left empty, any detection matches. The following actions can
-  read what moved with `{{triggerEvent.data.target}}`.
-- **Identify a device** (action) — makes the chosen device signal itself.
-  It returns whether the device could signal itself, so the following
-  actions can depend on it.
+## Dashboard widget
 
-## Dashboard
+Add the **Wi-Fi QR code** widget to a dashboard and choose its network. It
+shows:
 
-Add the **Demo status** widget to a dashboard: it shows the live
-temperature of the weather station and the power of the office plug, the
-connection the plug currently uses (orange when degraded) and the observed
-location. Its **Identify the light** button makes the demo light signal
-itself.
+- the network name (setting **Show the network name**);
+- the QR code;
+- the password in clear text, or "Open network" (setting **Show the
+  password**).
+
+Turn the password off to show only the QR code. The QR code always contains
+the password: that is how the phone joins the network.
+
+## Scene action "Change the Wi-Fi password shown"
+
+Updates the password of a network, saved in the configuration: the QR code and
+the widget follow within seconds (a few minutes at most). The password can come from a scene variable, for
+example when another integration rotates the guest password.
+
+This action does **not** change the password of the router: it only changes
+what Gladys shows. A password the network refuses (too short for WPA, open
+network, network not set up) fails the action, and the previous password stays.
+
+## Scene examples
+
+- Every Monday, a scene changes the guest password on the router (with the
+  router's integration), then calls "Change the Wi-Fi password shown" with the
+  same value.
+- A tablet in the hall shows a dashboard with the widget alone, password
+  hidden.
 
 ## Troubleshooting
 
-The integration logs everything it does: check the integration logs from the
-Gladys UI (or `docker logs` on the host) with `LOG_LEVEL=debug` for the full
-detail.
+- **The widget says the network is not set up**: fill in its name on the
+  integration page, then save.
+- **The phone does not offer to join**: check that the name and the password
+  are exactly the ones of the router (case included). With **WPA3 only**, try
+  **WPA / WPA2**: phones then negotiate WPA3 themselves when the router offers
+  it.
+- **No QR code, a message instead**: the message gives the reason (password
+  too short, name too long).
+
+## Limits
+
+- The dashboard shows the password to anyone who can see it, public
+  dashboards included: use a guest network.
+- Three networks at most.
+- The integration does not read or change the router: the password is the one
+  typed here or sent by a scene.
+- Not scanned with every phone model yet (see the note above).
+
+## Credits
+
+- QR codes generated by [node-qrcode](https://github.com/soldair/node-qrcode)
+  (MIT).
+- Wi-Fi QR format of the [ZXing](https://github.com/zxing/zxing) project
+  (Apache 2.0).
+- Not affiliated with the Wi-Fi Alliance.

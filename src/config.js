@@ -1,45 +1,59 @@
 // -----------------------------------------------------------------------------
-// Integration configuration.
-//
-// The configuration is filled in by the user in Gladys, from the `config_schema`
-// declared in `gladys-assistant-integration.json`. The SDK fetches it for you
-// (`gladys.getConfig()`) and notifies you of every change through
-// `gladys.onConfigUpdated()`.
-//
-// This module only provides defaults and normalizes the received object, so the
-// rest of the code never has to deal with `undefined`.
+// The configuration: up to three Wi-Fi networks, each a fixed group of fields
+// (`ssid_1`, `security_1`, `password_1`, `hidden_1`...). The manifest form has
+// no list type, so the slots are numbered; their keys are forever.
 // -----------------------------------------------------------------------------
 
-// Defaults: they MUST stay consistent with the `default` values declared in the
-// `config_schema` of the manifest.
-export const DEFAULT_CONFIG = {
-  latitude: 48.8566, // Paris
-  longitude: 2.3522,
-  unit: 'celsius', // 'celsius' | 'fahrenheit'
-  // Seconds between two reads of the polled sensors. Gladys polls at most once
-  // a minute: slower intervals are applied by skipping polls (see
-  // createPoller in src/devices/index.js).
-  poll_frequency: 300,
-  // Reserved key (NOT in config_schema): because the manifest declares both
-  // 'local' and 'cloud' in its `transports` field, Gladys shows a standard
-  // "Prefer the local connection" toggle and sends the user's choice here.
-  // Read-only for the integration; defaults to true.
-  GLADYS_PREFER_LOCAL: true,
+export const LANGUAGES = ['en', 'fr', 'de', 'es'];
+
+/** The network slots, as the widget setting and the scene action name them. */
+export const SLOTS = ['1', '2', '3'];
+
+/** Security values of the form → the `T:` field of the Wi-Fi QR code. */
+export const SECURITY = {
+  wpa: 'WPA', // WPA, WPA2 and WPA2/WPA3 transition: what nearly every router uses
+  sae: 'SAE', // WPA3 only
+  wep: 'WEP',
+  none: 'nopass',
 };
 
+export const DEFAULT_CONFIG = Object.fromEntries(
+  SLOTS.flatMap((slot) => [
+    [`ssid_${slot}`, ''],
+    [`security_${slot}`, 'wpa'],
+    [`password_${slot}`, ''],
+    [`hidden_${slot}`, false],
+  ]),
+);
+// A secret field takes no default in the manifest: it starts empty.
+export const NO_MANIFEST_DEFAULT = SLOTS.map((slot) => `password_${slot}`);
+
+const text = (value) => (typeof value === 'string' ? value : '');
+
 /**
- * Merge the user config with the defaults.
- * @param {Record<string, unknown>} raw config returned by the SDK
+ * The configuration Gladys sent, made complete: one entry per slot,
+ * `configured: false` when its network name is empty.
+ * @param {object} raw gladys.config
+ * @returns {{ networks: object[] }}
  */
 export function normalizeConfig(raw = {}) {
+  const config = raw ?? {};
   return {
-    ...DEFAULT_CONFIG,
-    ...raw,
-    // Force the types: config may arrive as strings from a form.
-    latitude: Number(raw.latitude ?? DEFAULT_CONFIG.latitude),
-    longitude: Number(raw.longitude ?? DEFAULT_CONFIG.longitude),
-    poll_frequency: Number(raw.poll_frequency ?? DEFAULT_CONFIG.poll_frequency),
-    // The preference is a boolean; anything but an explicit false means true.
-    GLADYS_PREFER_LOCAL: raw.GLADYS_PREFER_LOCAL !== false,
+    networks: SLOTS.map((slot) => {
+      const ssid = text(config[`ssid_${slot}`]);
+      const security = Object.hasOwn(SECURITY, config[`security_${slot}`])
+        ? config[`security_${slot}`]
+        : DEFAULT_CONFIG[`security_${slot}`];
+      return {
+        slot,
+        // An SSID may legitimately start or end with a space: keep it as typed,
+        // but a name made of spaces only is no name.
+        ssid,
+        configured: ssid.trim() !== '',
+        security,
+        password: security === 'none' ? '' : text(config[`password_${slot}`]),
+        hidden: config[`hidden_${slot}`] === true || config[`hidden_${slot}`] === 'true',
+      };
+    }),
   };
 }

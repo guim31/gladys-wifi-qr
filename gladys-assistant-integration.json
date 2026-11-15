@@ -1,177 +1,576 @@
 {
   "manifest_version": 1,
-  "type": "device",
-  "name": "Demo Devices Template",
+  "type": "provider",
+  "name": "Wi-Fi QR Code",
   "description": {
-    "en": "Starter template showing sensors, a switch, a dimmable light and a smart plug.",
-    "fr": "Template de démarrage : capteurs, interrupteur, lampe variable et prise connectée."
+    "en": "A QR code of your guest Wi-Fi on the dashboard: guests scan it and join the network.",
+    "fr": "Le QR code de votre Wi-Fi invités sur le tableau de bord : vos invités le scannent et se connectent.",
+    "de": "Der QR-Code deines Gäste-WLANs im Dashboard: Gäste scannen ihn und verbinden sich.",
+    "es": "El código QR de su Wi-Fi de invitados en el panel: sus invitados lo escanean y se conectan."
   },
   "version": "1.0.0",
-  "docker_image": "ghcr.io/gladysassistant/integration-template-js:1.0.0",
-  "gladys_version": ">=5.1.0",
-  "cover_image": "https://raw.githubusercontent.com/GladysAssistant/integration-template-js/master/cover.png",
-  "categories": ["lighting", "security", "environment"],
-  "transports": ["local", "cloud"],
+  "docker_image": "ghcr.io/guim31/gladys-wifi-qr:1.0.0",
+  "gladys_version": ">=5.2.0",
+  "cover_image": "https://raw.githubusercontent.com/guim31/gladys-wifi-qr/main/cover.png",
+  "categories": ["network"],
+  "transports": ["local"],
   "config_schema": [
     {
       "key": "intro",
       "type": "section",
-      "label": { "en": "Getting started", "fr": "Pour commencer" },
+      "label": {
+        "en": "How it works",
+        "fr": "Fonctionnement",
+        "de": "So funktioniert es",
+        "es": "Funcionamiento"
+      },
       "description": {
-        "en": "The demo weather station reads real data from the free Open-Meteo API: pick the coordinates to observe. No account, no API key.",
-        "fr": "La station météo de démonstration lit de vraies données via l'API gratuite Open-Meteo : choisissez les coordonnées à observer. Pas de compte, pas de clé d'API."
+        "en": "Fill in up to three Wi-Fi networks, for example the guest network. Then add the \"Wi-Fi QR code\" widget to a dashboard: a guest scans the code with the phone camera and joins the network. Everything stays on your Gladys: no account, no internet access.",
+        "fr": "Renseignez jusqu'à trois réseaux Wi-Fi, par exemple celui des invités. Ajoutez ensuite le widget « QR code Wi-Fi » à un tableau de bord : un invité scanne le code avec l'appareil photo de son téléphone et rejoint le réseau. Tout reste sur votre Gladys : ni compte, ni accès à Internet.",
+        "de": "Trag bis zu drei WLAN-Netzwerke ein, zum Beispiel das Gästenetz. Füge dann das Widget „WLAN-QR-Code“ einem Dashboard hinzu: Ein Gast scannt den Code mit der Handykamera und verbindet sich. Alles bleibt auf deinem Gladys: kein Konto, kein Internetzugang.",
+        "es": "Indique hasta tres redes Wi-Fi, por ejemplo la de invitados. Después añada el widget «Código QR Wi-Fi» a un panel: un invitado escanea el código con la cámara del teléfono y se conecta a la red. Todo se queda en su Gladys: sin cuenta ni acceso a Internet."
       },
       "links": [
         {
-          "url": "https://open-meteo.com/en/docs",
-          "label": { "en": "Open-Meteo documentation", "fr": "Documentation Open-Meteo" }
+          "url": "https://github.com/guim31/gladys-wifi-qr#readme",
+          "label": {
+            "en": "Documentation",
+            "fr": "Documentation",
+            "de": "Dokumentation",
+            "es": "Documentación"
+          }
         }
       ]
     },
     {
-      "key": "latitude",
-      "type": "number",
-      "label": { "en": "Latitude", "fr": "Latitude" },
-      "description": {
-        "en": "Latitude used for the demo weather sensor.",
-        "fr": "Latitude utilisée par le capteur météo de démonstration."
+      "key": "network_1",
+      "type": "section",
+      "label": {
+        "en": "Network 1",
+        "fr": "Réseau 1",
+        "de": "Netzwerk 1",
+        "es": "Red 1"
       },
-      "placeholder": { "en": "e.g. 48.8566", "fr": "ex. 48.8566" },
-      "required": true,
-      "default": 48.8566,
-      "min": -90,
-      "max": 90
+      "description": {
+        "en": "Leave the name empty to skip this network.",
+        "fr": "Laissez le nom vide pour ne pas utiliser ce réseau.",
+        "de": "Lass den Namen leer, um dieses Netzwerk nicht zu nutzen.",
+        "es": "Deje el nombre vacío para no usar esta red."
+      }
     },
     {
-      "key": "longitude",
-      "type": "number",
-      "label": { "en": "Longitude", "fr": "Longitude" },
-      "description": {
-        "en": "Longitude used for the demo weather sensor.",
-        "fr": "Longitude utilisée par le capteur météo de démonstration."
+      "key": "ssid_1",
+      "type": "string",
+      "label": {
+        "en": "Network name (SSID)",
+        "fr": "Nom du réseau (SSID)",
+        "de": "Netzwerkname (SSID)",
+        "es": "Nombre de la red (SSID)"
       },
-      "placeholder": { "en": "e.g. 2.3522", "fr": "ex. 2.3522" },
-      "required": true,
-      "default": 2.3522,
-      "min": -180,
-      "max": 180
+      "description": {
+        "en": "Exactly as the phones list it: case, spaces and accents count.",
+        "fr": "Exactement comme les téléphones l'affichent : majuscules, espaces et accents comptent.",
+        "de": "Genau wie die Handys es anzeigen: Groß- und Kleinschreibung, Leerzeichen und Akzente zählen.",
+        "es": "Exactamente como lo muestran los teléfonos: mayúsculas, espacios y acentos cuentan."
+      },
+      "placeholder": {
+        "en": "e.g. Guests",
+        "fr": "ex. Invités",
+        "de": "z. B. Gäste",
+        "es": "p. ej. Invitados"
+      },
+      "required": false,
+      "default": ""
     },
     {
-      "key": "unit",
+      "key": "security_1",
       "type": "select",
-      "label": { "en": "Temperature unit", "fr": "Unité de température" },
-      "required": false,
-      "default": "celsius",
+      "label": {
+        "en": "Security",
+        "fr": "Sécurité",
+        "de": "Sicherheit",
+        "es": "Seguridad"
+      },
+      "required": true,
+      "default": "wpa",
       "options": [
-        { "value": "celsius", "label": { "en": "Celsius", "fr": "Celsius" } },
-        { "value": "fahrenheit", "label": { "en": "Fahrenheit", "fr": "Fahrenheit" } }
-      ]
-    },
-    {
-      "key": "poll_frequency",
-      "type": "number",
-      "label": { "en": "Refresh interval (s)", "fr": "Intervalle de rafraîchissement (s)" },
-      "description": {
-        "en": "How often sensors are polled, in seconds (one minute minimum).",
-        "fr": "Fréquence d'interrogation des capteurs, en secondes (une minute minimum)."
-      },
-      "required": false,
-      "default": 300,
-      "min": 60,
-      "max": 3600
-    }
-  ],
-  "actions": [
-    {
-      "key": "test_weather",
-      "label": { "en": "Test the weather provider", "fr": "Tester le fournisseur météo" },
-      "timeout_seconds": 30
-    },
-    {
-      "key": "identify",
-      "label": { "en": "Identify a device", "fr": "Identifier un appareil" },
-      "fields": [
         {
-          "key": "device",
-          "type": "select",
-          "source": "devices",
-          "label": { "en": "Device", "fr": "Appareil" },
-          "required": true
-        }
-      ]
-    }
-  ],
-  "scene_triggers": [
-    {
-      "key": "motion_detected",
-      "label": { "en": "Motion detected", "fr": "Mouvement détecté" },
-      "description": {
-        "en": "A demo motion sensor saw a person or an animal move.",
-        "fr": "Un détecteur de démonstration a vu bouger une personne ou un animal."
-      },
-      "fields": [
-        {
-          "key": "device",
-          "type": "select",
-          "source": "devices",
-          "label": { "en": "Sensor", "fr": "Détecteur" }
+          "value": "wpa",
+          "label": {
+            "en": "WPA / WPA2 (or WPA2/WPA3)",
+            "fr": "WPA / WPA2 (ou WPA2/WPA3)",
+            "de": "WPA / WPA2 (oder WPA2/WPA3)",
+            "es": "WPA / WPA2 (o WPA2/WPA3)"
+          }
         },
         {
-          "key": "target",
-          "type": "multi_select",
-          "label": { "en": "What moved", "fr": "Ce qui a bougé" },
-          "options": [
-            { "value": "person", "label": { "en": "Person", "fr": "Personne" } },
-            { "value": "animal", "label": { "en": "Animal", "fr": "Animal" } }
-          ]
-        }
-      ],
-      "variables": [
+          "value": "sae",
+          "label": {
+            "en": "WPA3 only",
+            "fr": "WPA3 seul",
+            "de": "Nur WPA3",
+            "es": "Solo WPA3"
+          }
+        },
         {
-          "key": "target",
-          "type": "string",
-          "label": { "en": "What moved", "fr": "Ce qui a bougé" }
+          "value": "wep",
+          "label": {
+            "en": "WEP (obsolete)",
+            "fr": "WEP (obsolète)",
+            "de": "WEP (veraltet)",
+            "es": "WEP (obsoleto)"
+          }
+        },
+        {
+          "value": "none",
+          "label": {
+            "en": "None (open network)",
+            "fr": "Aucune (réseau ouvert)",
+            "de": "Keine (offenes Netzwerk)",
+            "es": "Ninguna (red abierta)"
+          }
         }
       ]
+    },
+    {
+      "key": "password_1",
+      "type": "secret",
+      "label": {
+        "en": "Password",
+        "fr": "Mot de passe",
+        "de": "Passwort",
+        "es": "Contraseña"
+      },
+      "description": {
+        "en": "Shown on the widget and in the QR code, never in the logs.",
+        "fr": "Affiché sur le widget et dans le QR code, jamais dans les journaux.",
+        "de": "Wird im Widget und im QR-Code gezeigt, nie in den Protokollen.",
+        "es": "Se muestra en el widget y en el código QR, nunca en los registros."
+      }
+    },
+    {
+      "key": "hidden_1",
+      "type": "boolean",
+      "label": {
+        "en": "Hidden network",
+        "fr": "Réseau masqué",
+        "de": "Verstecktes Netzwerk",
+        "es": "Red oculta"
+      },
+      "description": {
+        "en": "Check it if the router does not broadcast the name.",
+        "fr": "Cochez si le routeur ne diffuse pas le nom.",
+        "de": "Aktiviere es, wenn der Router den Namen nicht sendet.",
+        "es": "Márquelo si el router no difunde el nombre."
+      },
+      "default": false
+    },
+    {
+      "key": "network_2",
+      "type": "section",
+      "label": {
+        "en": "Network 2",
+        "fr": "Réseau 2",
+        "de": "Netzwerk 2",
+        "es": "Red 2"
+      },
+      "description": {
+        "en": "Leave the name empty to skip this network.",
+        "fr": "Laissez le nom vide pour ne pas utiliser ce réseau.",
+        "de": "Lass den Namen leer, um dieses Netzwerk nicht zu nutzen.",
+        "es": "Deje el nombre vacío para no usar esta red."
+      }
+    },
+    {
+      "key": "ssid_2",
+      "type": "string",
+      "label": {
+        "en": "Network name (SSID)",
+        "fr": "Nom du réseau (SSID)",
+        "de": "Netzwerkname (SSID)",
+        "es": "Nombre de la red (SSID)"
+      },
+      "description": {
+        "en": "Exactly as the phones list it: case, spaces and accents count.",
+        "fr": "Exactement comme les téléphones l'affichent : majuscules, espaces et accents comptent.",
+        "de": "Genau wie die Handys es anzeigen: Groß- und Kleinschreibung, Leerzeichen und Akzente zählen.",
+        "es": "Exactamente como lo muestran los teléfonos: mayúsculas, espacios y acentos cuentan."
+      },
+      "placeholder": {
+        "en": "e.g. Guests",
+        "fr": "ex. Invités",
+        "de": "z. B. Gäste",
+        "es": "p. ej. Invitados"
+      },
+      "required": false,
+      "default": ""
+    },
+    {
+      "key": "security_2",
+      "type": "select",
+      "label": {
+        "en": "Security",
+        "fr": "Sécurité",
+        "de": "Sicherheit",
+        "es": "Seguridad"
+      },
+      "required": true,
+      "default": "wpa",
+      "options": [
+        {
+          "value": "wpa",
+          "label": {
+            "en": "WPA / WPA2 (or WPA2/WPA3)",
+            "fr": "WPA / WPA2 (ou WPA2/WPA3)",
+            "de": "WPA / WPA2 (oder WPA2/WPA3)",
+            "es": "WPA / WPA2 (o WPA2/WPA3)"
+          }
+        },
+        {
+          "value": "sae",
+          "label": {
+            "en": "WPA3 only",
+            "fr": "WPA3 seul",
+            "de": "Nur WPA3",
+            "es": "Solo WPA3"
+          }
+        },
+        {
+          "value": "wep",
+          "label": {
+            "en": "WEP (obsolete)",
+            "fr": "WEP (obsolète)",
+            "de": "WEP (veraltet)",
+            "es": "WEP (obsoleto)"
+          }
+        },
+        {
+          "value": "none",
+          "label": {
+            "en": "None (open network)",
+            "fr": "Aucune (réseau ouvert)",
+            "de": "Keine (offenes Netzwerk)",
+            "es": "Ninguna (red abierta)"
+          }
+        }
+      ]
+    },
+    {
+      "key": "password_2",
+      "type": "secret",
+      "label": {
+        "en": "Password",
+        "fr": "Mot de passe",
+        "de": "Passwort",
+        "es": "Contraseña"
+      },
+      "description": {
+        "en": "Shown on the widget and in the QR code, never in the logs.",
+        "fr": "Affiché sur le widget et dans le QR code, jamais dans les journaux.",
+        "de": "Wird im Widget und im QR-Code gezeigt, nie in den Protokollen.",
+        "es": "Se muestra en el widget y en el código QR, nunca en los registros."
+      }
+    },
+    {
+      "key": "hidden_2",
+      "type": "boolean",
+      "label": {
+        "en": "Hidden network",
+        "fr": "Réseau masqué",
+        "de": "Verstecktes Netzwerk",
+        "es": "Red oculta"
+      },
+      "description": {
+        "en": "Check it if the router does not broadcast the name.",
+        "fr": "Cochez si le routeur ne diffuse pas le nom.",
+        "de": "Aktiviere es, wenn der Router den Namen nicht sendet.",
+        "es": "Márquelo si el router no difunde el nombre."
+      },
+      "default": false
+    },
+    {
+      "key": "network_3",
+      "type": "section",
+      "label": {
+        "en": "Network 3",
+        "fr": "Réseau 3",
+        "de": "Netzwerk 3",
+        "es": "Red 3"
+      },
+      "description": {
+        "en": "Leave the name empty to skip this network.",
+        "fr": "Laissez le nom vide pour ne pas utiliser ce réseau.",
+        "de": "Lass den Namen leer, um dieses Netzwerk nicht zu nutzen.",
+        "es": "Deje el nombre vacío para no usar esta red."
+      }
+    },
+    {
+      "key": "ssid_3",
+      "type": "string",
+      "label": {
+        "en": "Network name (SSID)",
+        "fr": "Nom du réseau (SSID)",
+        "de": "Netzwerkname (SSID)",
+        "es": "Nombre de la red (SSID)"
+      },
+      "description": {
+        "en": "Exactly as the phones list it: case, spaces and accents count.",
+        "fr": "Exactement comme les téléphones l'affichent : majuscules, espaces et accents comptent.",
+        "de": "Genau wie die Handys es anzeigen: Groß- und Kleinschreibung, Leerzeichen und Akzente zählen.",
+        "es": "Exactamente como lo muestran los teléfonos: mayúsculas, espacios y acentos cuentan."
+      },
+      "placeholder": {
+        "en": "e.g. Guests",
+        "fr": "ex. Invités",
+        "de": "z. B. Gäste",
+        "es": "p. ej. Invitados"
+      },
+      "required": false,
+      "default": ""
+    },
+    {
+      "key": "security_3",
+      "type": "select",
+      "label": {
+        "en": "Security",
+        "fr": "Sécurité",
+        "de": "Sicherheit",
+        "es": "Seguridad"
+      },
+      "required": true,
+      "default": "wpa",
+      "options": [
+        {
+          "value": "wpa",
+          "label": {
+            "en": "WPA / WPA2 (or WPA2/WPA3)",
+            "fr": "WPA / WPA2 (ou WPA2/WPA3)",
+            "de": "WPA / WPA2 (oder WPA2/WPA3)",
+            "es": "WPA / WPA2 (o WPA2/WPA3)"
+          }
+        },
+        {
+          "value": "sae",
+          "label": {
+            "en": "WPA3 only",
+            "fr": "WPA3 seul",
+            "de": "Nur WPA3",
+            "es": "Solo WPA3"
+          }
+        },
+        {
+          "value": "wep",
+          "label": {
+            "en": "WEP (obsolete)",
+            "fr": "WEP (obsolète)",
+            "de": "WEP (veraltet)",
+            "es": "WEP (obsoleto)"
+          }
+        },
+        {
+          "value": "none",
+          "label": {
+            "en": "None (open network)",
+            "fr": "Aucune (réseau ouvert)",
+            "de": "Keine (offenes Netzwerk)",
+            "es": "Ninguna (red abierta)"
+          }
+        }
+      ]
+    },
+    {
+      "key": "password_3",
+      "type": "secret",
+      "label": {
+        "en": "Password",
+        "fr": "Mot de passe",
+        "de": "Passwort",
+        "es": "Contraseña"
+      },
+      "description": {
+        "en": "Shown on the widget and in the QR code, never in the logs.",
+        "fr": "Affiché sur le widget et dans le QR code, jamais dans les journaux.",
+        "de": "Wird im Widget und im QR-Code gezeigt, nie in den Protokollen.",
+        "es": "Se muestra en el widget y en el código QR, nunca en los registros."
+      }
+    },
+    {
+      "key": "hidden_3",
+      "type": "boolean",
+      "label": {
+        "en": "Hidden network",
+        "fr": "Réseau masqué",
+        "de": "Verstecktes Netzwerk",
+        "es": "Red oculta"
+      },
+      "description": {
+        "en": "Check it if the router does not broadcast the name.",
+        "fr": "Cochez si le routeur ne diffuse pas le nom.",
+        "de": "Aktiviere es, wenn der Router den Namen nicht sendet.",
+        "es": "Márquelo si el router no difunde el nombre."
+      },
+      "default": false
     }
   ],
   "scene_actions": [
     {
-      "key": "identify_device",
-      "label": { "en": "Identify a device", "fr": "Identifier un appareil" },
+      "key": "set_password",
+      "label": {
+        "en": "Change the Wi-Fi password shown",
+        "fr": "Changer le mot de passe Wi-Fi affiché",
+        "de": "Angezeigtes WLAN-Passwort ändern",
+        "es": "Cambiar la contraseña Wi-Fi mostrada"
+      },
       "description": {
-        "en": "Make a device signal itself (the demo light blinks).",
-        "fr": "Fait se signaler un appareil (la lampe de démonstration clignote)."
+        "en": "Updates the password of the QR code and of the widget, e.g. from a variable. It does not change the router.",
+        "fr": "Met à jour le mot de passe du QR code et du widget, par exemple depuis une variable. Le routeur n'est pas modifié.",
+        "de": "Aktualisiert das Passwort im QR-Code und im Widget, z. B. aus einer Variablen. Der Router wird nicht geändert.",
+        "es": "Actualiza la contraseña del código QR y del widget, por ejemplo desde una variable. El router no cambia."
       },
       "timeout_seconds": 15,
       "fields": [
         {
-          "key": "device",
+          "key": "network",
           "type": "select",
-          "source": "devices",
-          "label": { "en": "Device", "fr": "Appareil" },
-          "required": true
-        }
-      ],
-      "outputs": [
+          "label": {
+            "en": "Network",
+            "fr": "Réseau",
+            "de": "Netzwerk",
+            "es": "Red"
+          },
+          "required": true,
+          "default": "1",
+          "options": [
+            {
+              "value": "1",
+              "label": {
+                "en": "Network 1",
+                "fr": "Réseau 1",
+                "de": "Netzwerk 1",
+                "es": "Red 1"
+              }
+            },
+            {
+              "value": "2",
+              "label": {
+                "en": "Network 2",
+                "fr": "Réseau 2",
+                "de": "Netzwerk 2",
+                "es": "Red 2"
+              }
+            },
+            {
+              "value": "3",
+              "label": {
+                "en": "Network 3",
+                "fr": "Réseau 3",
+                "de": "Netzwerk 3",
+                "es": "Red 3"
+              }
+            }
+          ]
+        },
         {
-          "key": "signalled",
-          "type": "boolean",
-          "label": { "en": "Device signalled", "fr": "Appareil signalé" }
+          "key": "password",
+          "type": "string",
+          "label": {
+            "en": "New password",
+            "fr": "Nouveau mot de passe",
+            "de": "Neues Passwort",
+            "es": "Nueva contraseña"
+          },
+          "required": true,
+          "placeholder": {
+            "en": "Text or {{variable}}",
+            "fr": "Texte ou {{variable}}",
+            "de": "Text oder {{Variable}}",
+            "es": "Texto o {{variable}}"
+          }
         }
       ]
     }
   ],
   "widgets": [
     {
-      "key": "demo_status",
-      "label": { "en": "Demo status", "fr": "État de la démo" },
-      "description": {
-        "en": "Live temperature and plug power, plug connection and observed location.",
-        "fr": "Température et puissance en direct, connexion de la prise, position observée."
+      "key": "wifi_qr",
+      "label": {
+        "en": "Wi-Fi QR code",
+        "fr": "QR code Wi-Fi",
+        "de": "WLAN-QR-Code",
+        "es": "Código QR Wi-Fi"
       },
-      "icon": "activity",
-      "action_timeout_seconds": 15
+      "description": {
+        "en": "The QR code to join a Wi-Fi network, with its name and password.",
+        "fr": "Le QR code pour rejoindre un réseau Wi-Fi, avec son nom et son mot de passe.",
+        "de": "Der QR-Code zum Verbinden mit einem WLAN, mit Name und Passwort.",
+        "es": "El código QR para conectarse a una red Wi-Fi, con su nombre y contraseña."
+      },
+      "icon": "wifi",
+      "settings": [
+        {
+          "key": "network",
+          "type": "select",
+          "label": {
+            "en": "Network",
+            "fr": "Réseau",
+            "de": "Netzwerk",
+            "es": "Red"
+          },
+          "required": true,
+          "default": "1",
+          "options": [
+            {
+              "value": "1",
+              "label": {
+                "en": "Network 1",
+                "fr": "Réseau 1",
+                "de": "Netzwerk 1",
+                "es": "Red 1"
+              }
+            },
+            {
+              "value": "2",
+              "label": {
+                "en": "Network 2",
+                "fr": "Réseau 2",
+                "de": "Netzwerk 2",
+                "es": "Red 2"
+              }
+            },
+            {
+              "value": "3",
+              "label": {
+                "en": "Network 3",
+                "fr": "Réseau 3",
+                "de": "Netzwerk 3",
+                "es": "Red 3"
+              }
+            }
+          ]
+        },
+        {
+          "key": "show_ssid",
+          "type": "boolean",
+          "label": {
+            "en": "Show the network name",
+            "fr": "Afficher le nom du réseau",
+            "de": "Netzwerknamen anzeigen",
+            "es": "Mostrar el nombre de la red"
+          },
+          "default": true
+        },
+        {
+          "key": "show_password",
+          "type": "boolean",
+          "label": {
+            "en": "Show the password",
+            "fr": "Afficher le mot de passe",
+            "de": "Passwort anzeigen",
+            "es": "Mostrar la contraseña"
+          },
+          "default": true
+        }
+      ]
     }
   ]
 }
