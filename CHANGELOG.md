@@ -10,6 +10,8 @@ the notes of the version's GitHub Release.
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-11-15
+
 ### Added
 
 - Up to three Wi-Fi networks (name, WPA/WPA2, WPA3, WEP or open, password,
@@ -21,3 +23,6 @@ the notes of the version's GitHub Release.
   included.
 - The integration status names a network that cannot give a working QR code.
 - Documentation in English, French, German and Spanish.
+
+[Unreleased]: https://github.com/guim31/gladys-wifi-qr/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/guim31/gladys-wifi-qr/releases/tag/v1.0.0
