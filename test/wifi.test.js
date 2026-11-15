@@ -62,5 +62,10 @@ test('the bounds of 802.11: 32-byte SSID, 8 to 63 characters or 64 hex digits fo
   assert.equal(networkProblem({ ...base, password: 'g'.repeat(64) }), 'password_length');
   assert.equal(networkProblem({ ...base, security: 'sae', password: 'short' }), 'password_length');
   assert.equal(networkProblem({ ...base, security: 'wep', password: '12345' }), null);
+  assert.equal(
+    networkProblem({ ...base, security: 'wep', password: '0123456789abcdef0123456789' }),
+    null,
+  );
+  assert.equal(networkProblem({ ...base, security: 'wep', password: '123456' }), 'wep_length');
   assert.equal(networkProblem({ ...base, security: 'none', password: '' }), null);
 });

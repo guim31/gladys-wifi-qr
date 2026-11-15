@@ -59,7 +59,7 @@ contiene la contraseña: así se conecta el teléfono a la red.
 ## Acción de escena «Cambiar la contraseña Wi-Fi mostrada»
 
 Actualiza la contraseña de una red, guardada en la configuración: el código QR
-y el widget la siguen al instante. La contraseña puede venir de una variable de
+y el widget la siguen en unos segundos (unos minutos como máximo). La contraseña puede venir de una variable de
 escena, por ejemplo cuando otra integración cambia la contraseña de invitados.
 
 Esta acción **no** cambia la contraseña del router: solo cambia lo que Gladys

@@ -60,7 +60,7 @@ toujours le mot de passe : c'est ainsi que le téléphone rejoint le réseau.
 ## Action de scène « Changer le mot de passe Wi-Fi affiché »
 
 Met à jour le mot de passe d'un réseau, enregistré dans la configuration : le
-QR code et le widget suivent aussitôt. Le mot de passe peut venir d'une
+QR code et le widget suivent en quelques secondes (quelques minutes au plus). Le mot de passe peut venir d'une
 variable de scène, par exemple quand une autre intégration change le mot de
 passe invités.
 

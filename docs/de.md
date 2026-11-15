@@ -60,7 +60,7 @@ immer das Passwort: So verbindet sich das Handy.
 ## Szenenaktion „Angezeigtes WLAN-Passwort ändern“
 
 Aktualisiert das Passwort eines Netzwerks, gespeichert in der Konfiguration:
-QR-Code und Widget folgen sofort. Das Passwort kann aus einer Szenenvariablen
+QR-Code und Widget folgen in wenigen Sekunden (höchstens einigen Minuten). Das Passwort kann aus einer Szenenvariablen
 kommen, zum Beispiel wenn eine andere Integration das Gästepasswort wechselt.
 
 Diese Aktion ändert **nicht** das Passwort des Routers: Geändert wird nur, was

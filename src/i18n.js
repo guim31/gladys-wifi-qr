@@ -10,21 +10,25 @@ export const PROBLEM_TEXT = {
     ssid_too_long: 'the network name is longer than 32 bytes',
     password_missing: 'the password is empty',
     password_length: 'a WPA password holds 8 to 63 characters',
+    wep_length: 'a WEP key holds 5 or 13 characters (10 or 26 hex digits)',
   },
   fr: {
     ssid_too_long: 'le nom du réseau dépasse 32 octets',
     password_missing: 'le mot de passe est vide',
     password_length: 'un mot de passe WPA compte de 8 à 63 caractères',
+    wep_length: 'une clé WEP compte 5 ou 13 caractères (10 ou 26 en hexadécimal)',
   },
   de: {
     ssid_too_long: 'der Netzwerkname ist länger als 32 Byte',
     password_missing: 'das Passwort ist leer',
     password_length: 'ein WPA-Passwort hat 8 bis 63 Zeichen',
+    wep_length: 'ein WEP-Schlüssel hat 5 oder 13 Zeichen (10 oder 26 hexadezimal)',
   },
   es: {
     ssid_too_long: 'el nombre de la red supera los 32 bytes',
     password_missing: 'la contraseña está vacía',
     password_length: 'una contraseña WPA tiene de 8 a 63 caracteres',
+    wep_length: 'una clave WEP tiene 5 o 13 caracteres (10 o 26 hexadecimales)',
   },
 };
 

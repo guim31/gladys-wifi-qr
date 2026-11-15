@@ -35,8 +35,9 @@ export function wifiPayload({ ssid, security, password, hidden }) {
 /**
  * What prevents a QR code that works, as the key of a PROBLEM_TEXT entry, or
  * null. The bounds are the ones of 802.11: an SSID holds 32 bytes, a WPA
- * passphrase 8 to 63 characters (or 64 hexadecimal digits, the raw key).
- * @returns {null | 'ssid_too_long' | 'password_missing' | 'password_length'}
+ * passphrase 8 to 63 characters (or 64 hexadecimal digits, the raw key), a
+ * WEP key 5 or 13 characters (or 10 or 26 hexadecimal digits).
+ * @returns {null | 'ssid_too_long' | 'password_missing' | 'password_length' | 'wep_length'}
  */
 export function networkProblem({ ssid, security, password }) {
   if (utf8Length(ssid) > 32) {
@@ -50,6 +51,9 @@ export function networkProblem({ ssid, security, password }) {
   }
   if ((security === 'wpa' || security === 'sae') && !isWpaPassword(password)) {
     return 'password_length';
+  }
+  if (security === 'wep' && !/^(.{5}|.{13}|[0-9a-fA-F]{10}|[0-9a-fA-F]{26})$/u.test(password)) {
+    return 'wep_length';
   }
   return null;
 }

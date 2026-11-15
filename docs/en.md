@@ -57,7 +57,7 @@ the password: that is how the phone joins the network.
 ## Scene action "Change the Wi-Fi password shown"
 
 Updates the password of a network, saved in the configuration: the QR code and
-the widget follow at once. The password can come from a scene variable, for
+the widget follow within seconds (a few minutes at most). The password can come from a scene variable, for
 example when another integration rotates the guest password.
 
 This action does **not** change the password of the router: it only changes

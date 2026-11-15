@@ -126,12 +126,25 @@ export function registerHandlers(gladys, options = {}) {
     }
   });
 
+  // Configuration updates and scene actions run one at a time: a scene's
+  // password must not be overwritten by an update read before it.
+  let queue = Promise.resolve();
+  const serial =
+    (fn) =>
+    (...args) => {
+      const run = queue.then(() => fn(...args));
+      queue = run.catch(() => {});
+      return run;
+    };
+
   gladys.onConfigUpdated(
-    whenReady(async (config) => {
-      await applyConfig(config);
-      logger.info('Configuration updated');
-      await refreshWidget();
-    }),
+    whenReady(
+      serial(async (config) => {
+        await applyConfig(config);
+        logger.info('Configuration updated');
+        await refreshWidget();
+      }),
+    ),
   );
 
   gladys.onWidgetGet(
@@ -167,16 +180,24 @@ export function registerHandlers(gladys, options = {}) {
 
   gladys.onWidgetGetImage(
     whenReady(async (key) => {
+      const [, slot] = IMAGE_KEY.exec(key) ?? [];
+      // Only the key of the current settings: an old key would serve an old password.
+      const isCurrent = () => {
+        const network = networks.find((entry) => entry.slot === slot);
+        return network?.configured && !networkProblem(network) && imageKey(network) === key;
+      };
+      if (!isCurrent()) {
+        throw new Error('Unknown or outdated image key');
+      }
       if (images.has(key)) {
         return images.get(key);
       }
-      const [, slot] = IMAGE_KEY.exec(key) ?? [];
       const network = networks.find((entry) => entry.slot === slot);
-      // Only the key of the current settings: an old key would serve an old password.
-      if (!network?.configured || networkProblem(network) || imageKey(network) !== key) {
+      const png = (await renderQr(wifiPayload(network))).toString('base64');
+      // The settings may have changed during the rendering: never cache an old password.
+      if (!isCurrent()) {
         throw new Error('Unknown or outdated image key');
       }
-      const png = (await renderQr(wifiPayload(network))).toString('base64');
       for (const cached of images.keys()) {
         if (cached.startsWith(`wifi-${slot}-`)) {
           images.delete(cached);
@@ -189,34 +210,36 @@ export function registerHandlers(gladys, options = {}) {
 
   gladys.onSceneAction(
     SCENE_ACTION,
-    whenReady(async (fields = {}) => {
-      const slot = String(fields.network ?? '');
-      // A variable read from a web page or a file often ends with a line break.
-      const password = String(fields.password ?? '').replace(/^[\r\n]+|[\r\n]+$/g, '');
-      const network = networks.find((entry) => entry.slot === slot);
-      if (!network) {
-        throw new Error(`Unknown network "${slot}"`);
-      }
-      if (!network.configured) {
-        throw new Error(`Network ${slot} is not set up`);
-      }
-      if (network.security === 'none') {
-        throw new Error(`Network ${slot} is open: it has no password`);
-      }
-      const problem = networkProblem({ ...network, password });
-      if (problem) {
-        throw new Error(`Password refused for network ${slot}: ${PROBLEM_TEXT.en[problem]}`);
-      }
-      if (password === network.password) {
+    whenReady(
+      serial(async (fields = {}) => {
+        const slot = String(fields.network ?? '');
+        // A variable read from a web page or a file often ends with a line break.
+        const password = String(fields.password ?? '').replace(/^[\r\n]+|[\r\n]+$/g, '');
+        const network = networks.find((entry) => entry.slot === slot);
+        if (!network) {
+          throw new Error(`Unknown network "${slot}"`);
+        }
+        if (!network.configured) {
+          throw new Error(`Network ${slot} is not set up`);
+        }
+        if (network.security === 'none') {
+          throw new Error(`Network ${slot} is open: it has no password`);
+        }
+        const problem = networkProblem({ ...network, password });
+        if (problem) {
+          throw new Error(`Password refused for network ${slot}: ${PROBLEM_TEXT.en[problem]}`);
+        }
+        if (password === network.password) {
+          return undefined;
+        }
+        const key = `password_${slot}`;
+        await gladys.setConfig({ [key]: password });
+        await applyConfig({ ...raw, [key]: password });
+        logger.info(`Password of network ${slot} changed by a scene`);
+        await refreshWidget();
         return undefined;
-      }
-      const key = `password_${slot}`;
-      await gladys.setConfig({ [key]: password });
-      await applyConfig({ ...raw, [key]: password });
-      logger.info(`Password of network ${slot} changed by a scene`);
-      await refreshWidget();
-      return undefined;
-    }),
+      }),
+    ),
   );
 
   return {
