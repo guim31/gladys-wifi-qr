@@ -1,0 +1,47 @@
+[
+  {
+    "network": {
+      "ssid": "Guests",
+      "security": "wpa",
+      "password": "welcome-home",
+      "hidden": false
+    },
+    "payload": "WIFI:T:WPA;S:Guests;P:welcome-home;H:false;;"
+  },
+  {
+    "network": {
+      "ssid": "Café \"L'été\"; 2,4 GHz",
+      "security": "wpa",
+      "password": "p@ss;w:o,r\"d\\ñ€",
+      "hidden": false
+    },
+    "payload": "WIFI:T:WPA;S:Café \\\"L'été\\\"\\; 2\\,4 GHz;P:p@ss\\;w\\:o\\,r\\\"d\\\\ñ€;H:false;;"
+  },
+  {
+    "network": {
+      "ssid": "Maison:5G",
+      "security": "sae",
+      "password": "àéîõü-12345",
+      "hidden": true
+    },
+    "payload": "WIFI:T:SAE;S:Maison\\:5G;P:àéîõü-12345;H:true;;"
+  },
+  {
+    "network": {
+      "ssid": "Old box",
+      "security": "wep",
+      "password": "12345",
+      "hidden": false
+    },
+    "payload": "WIFI:T:WEP;S:Old box;P:12345;H:false;;"
+  },
+  {
+    "network": {
+      "ssid": "Bibliothèque ouverte",
+      "security": "none",
+      "password": "",
+      "hidden": false
+    },
+    "payload": "WIFI:T:nopass;S:Bibliothèque ouverte;H:false;;"
+  }
+]

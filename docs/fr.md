@@ -1,67 +1,107 @@
-# Template de démonstration
+# QR code Wi-Fi
 
-Ceci est la documentation utilisateur de l'intégration. Gladys ré-héberge ce
-fichier et affiche un lien **Documentation** permanent vers lui dans l'écran
-de configuration (dans la langue de l'utilisateur, avec l'anglais en repli) —
-c'est au moment de configurer que l'utilisateur en a le plus besoin. Gardez
-les courtes indications d'accueil dans les blocs `section` du `config_schema`
-du manifest ; mettez ici le pas-à-pas détaillé (captures d'écran, dépannage…).
+Affichez le QR code de votre Wi-Fi invités sur un tableau de bord de Gladys :
+un invité pointe l'appareil photo de son téléphone dessus et rejoint le réseau,
+sans taper de mot de passe. Jusqu'à trois réseaux, un widget, et une action de
+scène pour changer le mot de passe affiché.
 
-## Ce que vous obtenez
+Tout se passe dans votre Gladys : ni compte, ni accès à Internet, aucune donnée
+envoyée.
 
-Six appareils de démonstration apparaissent après l'installation : une
-station météo (vraies données Open-Meteo), un interrupteur, une lampe
-variable, une prise connectée avec mesure de puissance, un détecteur de
-mouvement et une caméra.
+> Les QR codes sont vérifiés en les relisant avec un décodeur de QR code, dans
+> les tests automatiques. Ils n'ont pas encore été scannés avec tous les
+> téléphones : vos retours sont les bienvenus sur le forum ou dans une issue
+> GitHub.
+
+## Prérequis
+
+- Gladys Assistant 5.2.0 ou plus récent (images des widgets).
+- Le nom (SSID), la sécurité et le mot de passe du réseau à partager.
 
 ## Configuration
 
-1. Ouvrez l'onglet **Configuration** de l'intégration.
-2. Renseignez la **latitude** et la **longitude** que la station météo de
-   démonstration doit observer (Paris par défaut), et choisissez votre unité
-   de température. L'**intervalle de rafraîchissement** règle la fréquence
-   de lecture de la station météo et de la puissance de la prise : toutes
-   les 5 minutes par défaut, toutes les minutes au plus.
-3. Enregistrez : les appareils apparaissent dans l'onglet **Découverte**,
-   prêts à être ajoutés.
+Sur la page de l'intégration, renseignez jusqu'à trois réseaux. Laissez vide le
+nom d'un réseau pour ne pas l'utiliser.
 
-Le réglage **Préférer la connexion locale** pilote la prise de
-démonstration : elle affiche en badge le canal réellement utilisé (local ou
-cloud), avec un point orange quand elle fonctionne en mode dégradé (local
-refusé, bascule cloud).
+### Nom du réseau, sécurité, mot de passe
 
-## Actions
+- **Nom du réseau (SSID)** : exactement comme les téléphones l'affichent.
+  Majuscules, espaces et accents comptent. 32 octets au plus.
+- **Sécurité** : **WPA / WPA2** convient à presque tous les routeurs, mode mixte
+  WPA2/WPA3 compris. Ne choisissez **WPA3 seul** que si le routeur n'accepte
+  rien d'autre : certains téléphones anciens ne le lisent pas. **Aucune** est
+  pour un réseau ouvert.
+- **Mot de passe** : de 8 à 63 caractères en WPA. Gladys le stocke comme un
+  secret, et il n'est jamais écrit dans les journaux.
+- **Réseau masqué** : cochez si le routeur ne diffuse pas le nom.
 
-- **Tester le fournisseur météo** — effectue une requête en direct vers
-  Open-Meteo et affiche la température et l'humidité actuelles sous le
-  bouton.
-- **Identifier un appareil** — choisissez un de vos appareils dans la liste
-  et il se signale (la lampe de démonstration « clignote » dans les logs).
+Les caractères spéciaux `\ ; , : "` sont échappés dans le QR code comme le
+format l'exige : un mot de passe comme `p@ss;word:2026` fonctionne.
 
-## Scènes
+### État de l'intégration
 
-L'intégration ajoute ses propres cartes à l'éditeur de scènes (Gladys 5.1
-ou plus récent), dans la catégorie **Intégrations** :
+La page de l'intégration affiche une erreur quand aucun réseau n'est configuré,
+ou quand un réseau ne peut pas donner un QR code qui fonctionne (mot de passe
+trop court, nom trop long), et nomme le réseau à corriger.
 
-- **Mouvement détecté** (déclencheur) — lance la scène quand un détecteur
-  de démonstration voit bouger quelque chose. Choisissez éventuellement le
-  détecteur et ce qui a bougé (personne, animal) ; laissés vides, toute
-  détection correspond. Les actions suivantes peuvent lire ce qui a bougé
-  avec `{{triggerEvent.data.target}}`.
-- **Identifier un appareil** (action) — fait se signaler l'appareil choisi.
-  Elle indique si l'appareil a pu se signaler, pour que les actions
-  suivantes puissent en dépendre.
+## Widget du tableau de bord
 
-## Tableau de bord
+Ajoutez le widget **QR code Wi-Fi** à un tableau de bord et choisissez son
+réseau. Il affiche :
 
-Ajoutez le widget **État de la démo** à un tableau de bord : il affiche en
-direct la température de la station météo et la puissance de la prise du
-bureau, la connexion utilisée par la prise (en orange si dégradée) et la
-position observée. Son bouton **Identifier la lampe** fait se signaler la
-lampe de démonstration.
+- le nom du réseau (réglage **Afficher le nom du réseau**) ;
+- le QR code ;
+- le mot de passe en clair, ou « Réseau ouvert » (réglage **Afficher le mot de
+  passe**).
+
+Désactivez le mot de passe pour n'afficher que le QR code. Le QR code contient
+toujours le mot de passe : c'est ainsi que le téléphone rejoint le réseau.
+
+## Action de scène « Changer le mot de passe Wi-Fi affiché »
+
+Met à jour le mot de passe d'un réseau, enregistré dans la configuration : le
+QR code et le widget suivent aussitôt. Le mot de passe peut venir d'une
+variable de scène, par exemple quand une autre intégration change le mot de
+passe invités.
+
+Cette action ne change **pas** le mot de passe du routeur : elle ne change que
+ce que Gladys affiche. Un mot de passe que le réseau refuserait (trop court en
+WPA, réseau ouvert, réseau non configuré) fait échouer l'action, et l'ancien
+mot de passe reste.
+
+## Exemples de scènes
+
+- Chaque lundi, une scène change le mot de passe invités sur le routeur (avec
+  l'intégration du routeur), puis appelle « Changer le mot de passe Wi-Fi
+  affiché » avec la même valeur.
+- Une tablette dans l'entrée affiche un tableau de bord avec le widget seul,
+  mot de passe masqué.
 
 ## Dépannage
 
-L'intégration journalise tout ce qu'elle fait : consultez les logs de
-l'intégration depuis l'interface Gladys (ou `docker logs` sur l'hôte) avec
-`LOG_LEVEL=debug` pour le détail complet.
+- **Le widget dit que le réseau n'est pas configuré** : renseignez son nom sur
+  la page de l'intégration, puis enregistrez.
+- **Le téléphone ne propose pas de se connecter** : vérifiez que le nom et le
+  mot de passe sont exactement ceux du routeur (majuscules comprises). En
+  **WPA3 seul**, essayez **WPA / WPA2** : les téléphones négocient alors
+  eux-mêmes le WPA3 quand le routeur le propose.
+- **Pas de QR code, un message à la place** : le message donne la raison (mot
+  de passe trop court, nom trop long).
+
+## Limites
+
+- Le tableau de bord montre le mot de passe à quiconque peut le voir, tableaux
+  de bord publics compris : utilisez un réseau invités.
+- Trois réseaux au plus.
+- L'intégration ne lit ni ne modifie le routeur : le mot de passe est celui
+  saisi ici ou envoyé par une scène.
+- Pas encore scanné avec tous les modèles de téléphone (voir la note plus
+  haut).
+
+## Crédits
+
+- QR codes générés par [node-qrcode](https://github.com/soldair/node-qrcode)
+  (MIT).
+- Format de QR code Wi-Fi du projet [ZXing](https://github.com/zxing/zxing)
+  (Apache 2.0).
+- Sans lien avec la Wi-Fi Alliance.

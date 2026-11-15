@@ -32,15 +32,14 @@ pushing.
 
 ```
 index.js                          SDK wiring only: handlers registered before connect()
-src/devices/index.js              registry of the device blueprints + dispatch helpers
-src/devices/<type>.js             one device type per file (buildDevice, onPoll, onSetValue...)
-src/scenes.js                     scene action handlers (manifest `scene_actions`)
-src/widgets.js                    dashboard widget handlers (manifest `widgets`)
-src/config.js                     DEFAULT_CONFIG (mirrors the manifest defaults) + normalization
-src/weather.js                    example driver (Open-Meteo)
-gladys-assistant-integration.json manifest: name, config_schema, actions, image...
-docs/en.md, docs/fr.md            user documentation, re-hosted by Gladys (mandatory)
-test/                             node --test, against the SDK's fake Gladys (integration-sdk/testing)
+src/app.js                        registerHandlers(): widget, widget image, scene action, status
+src/wifi.js                       the "WIFI:" text of the QR code, its escaping, the 802.11 bounds
+src/config.js                     the three network slots, DEFAULT_CONFIG, normalization
+src/i18n.js                       every text the container produces, in en/fr/de/es
+src/store.js                      the random key in /data that signs the image keys
+gladys-assistant-integration.json manifest (type provider): config_schema, widget, scene action
+docs/{en,fr,de,es}.md             user documentation, re-hosted by Gladys (same sections)
+test/                             node --test, against the SDK's fake Gladys; QR codes decoded by jsQR
 .github/scripts/release.mjs       release helpers (manifest bump, changelog), tested in test/
 ```
 
@@ -251,3 +250,22 @@ long, et sur un « Sie »/« Ihr… » de politesse en allemand. Le store exige 
 - Docs `en`, `fr`, `de`, `es` avec les mêmes sections.
 - Chauffe, ouverture, sécurité : ne rien rendre pilotable « comme un thermostat » ou par un assistant
   vocal quand une erreur serait dangereuse (leçon d'OctoPrint).
+
+## Wi-Fi QR code (cette intégration)
+
+- Type **`provider`** : aucun appareil. Un widget (`wifi_qr`), une action de scène (`set_password`), trois
+  emplacements de réseau numérotés (`ssid_N`, `security_N`, `password_N`, `hidden_N`) : le formulaire n'a pas de
+  type liste. Clés définitives.
+- **Images de widget : Gladys ≥ 5.2.0** (`onWidgetGetImage`, commit 7d312990, absent de la 5.1), d'où
+  `gladys_version >=5.2.0`.
+- Format `WIFI:T:<WPA|SAE|WEP|nopass>;S:…;P:…;H:<true|false>;;`, `\ ; , : "` échappés par `\`, UTF-8 sans
+  guillemets (les lecteurs récents n'enlèvent pas les guillemets de l'ancienne règle « hexadécimal »). `P` omis
+  pour un réseau ouvert. Tests : chaque PNG relu par jsQR, puis analysé comme ZXing.
+- **Clé d'image** : le cœur met une image en cache une heure par clé. La clé est un HMAC du texte du QR sous une
+  clé aléatoire de `/data` : elle change avec le mot de passe sans le révéler (le tableau de bord peut être
+  public). Une clé périmée est refusée, et le cache local des PNG est vidé à chaque changement de configuration.
+- L'action de scène écrit le mot de passe par `setConfig` (le cœur accepte l'écriture d'un champ `secret` par
+  l'intégration et ne renvoie pas `config-updated`) : l'état local est mis à jour à la main. Le champ de l'action
+  est un `string` : un `secret` serait impossible à remplir (#3154).
+- Piège de test : `mkdirSync('/proc/…', { recursive: true })` bloque le processus de test ; simuler un `/data`
+  non inscriptible par un dossier sous un fichier ordinaire.
